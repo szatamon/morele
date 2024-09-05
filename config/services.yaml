@@ -1,0 +1,30 @@
+# config/services.yaml
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Service\RecommendationStrategyLocator:
+        class: Symfony\Component\DependencyInjection\ServiceLocator
+        arguments:
+            -
+                random: '@App\Application\Strategy\RandomMovieRecommendation'
+                starts_with_w_and_even: '@App\Application\Strategy\StartsWithWAndEvenRecommendation'
+                multi_word_titles: '@App\Application\Strategy\MultiWordTitlesRecommendation'
+
+    App\Application\Service\MovieRecommendationService:
+        arguments:
+            $serviceLocator: '@App\Service\RecommendationStrategyLocator'
+
+    App\Infrastructure\Presentation\MovieRecommendationCommand:
+        tags: ['console.command']
+
+    App\Infrastracture\Repository\StaticMovieRepository: ~
